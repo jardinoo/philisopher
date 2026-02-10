@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   actions.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jkliazni <jkliazni@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/10 15:31:32 by jkliazni          #+#    #+#             */
+/*   Updated: 2026/02/10 15:31:33 by jkliazni         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/philo.h"
 
 static void	take_forks(t_philo *philo)
@@ -28,8 +40,10 @@ void	philo_eat(t_philo *philo)
 {
 	take_forks(philo);
 	print_status(philo, "is eating");
+	pthread_mutex_lock(&philo->meal_mutex);
 	philo->last_meal = get_time();
 	philo->eat_count++;
+	pthread_mutex_unlock(&philo->meal_mutex);
 	ft_usleep(philo->data->time_to_eat);
 	drop_forks(philo);
 }

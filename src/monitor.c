@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jkliazni <jkliazni@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/10 15:31:44 by jkliazni          #+#    #+#             */
+/*   Updated: 2026/02/10 15:31:45 by jkliazni         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/philo.h"
 
 int	check_death(t_data *data)
@@ -21,6 +33,7 @@ static int	check_all_eaten(t_data *data)
 {
 	int	i;
 	int	all_done;
+	int	count;
 
 	if (data->must_eat_count == -1)
 		return (0);
@@ -28,7 +41,10 @@ static int	check_all_eaten(t_data *data)
 	i = 0;
 	while (i < data->philo_count)
 	{
-		if (data->philos[i].eat_count < data->must_eat_count)
+		pthread_mutex_lock(&data->philos[i].meal_mutex);
+		count = data->philos[i].eat_count;
+		pthread_mutex_unlock(&data->philos[i].meal_mutex);
+		if (count < data->must_eat_count)
 		{
 			all_done = 0;
 			break ;
@@ -41,9 +57,13 @@ static int	check_all_eaten(t_data *data)
 static int	check_philo_death(t_data *data, int i)
 {
 	long long	time;
+	long long	last_meal;
 
 	time = get_time();
-	if (time_diff(data->philos[i].last_meal, time) > data->time_to_die)
+	pthread_mutex_lock(&data->philos[i].meal_mutex);
+	last_meal = data->philos[i].last_meal;
+	pthread_mutex_unlock(&data->philos[i].meal_mutex);
+	if (time_diff(last_meal, time) > data->time_to_die)
 	{
 		pthread_mutex_lock(&data->print_mutex);
 		printf("%lld %d died\n", time - data->start_time,
@@ -75,7 +95,7 @@ void	*monitor_routine(void *arg)
 			set_death(data);
 			return (NULL);
 		}
-		usleep(1000);
+		usleep(100);
 	}
 	return (NULL);
 }

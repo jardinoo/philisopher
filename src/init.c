@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jkliazni <jkliazni@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/10 15:31:39 by jkliazni          #+#    #+#             */
+/*   Updated: 2026/02/10 15:31:40 by jkliazni         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/philo.h"
 
 static int	init_forks(t_data *data)
@@ -34,6 +46,8 @@ static int	init_philos(t_data *data)
 		data->philos[i].right_fork = &data->forks[(i + 1)
 			% data->philo_count];
 		data->philos[i].data = data;
+		if (pthread_mutex_init(&data->philos[i].meal_mutex, NULL) != 0)
+			return (1);
 		i++;
 	}
 	return (0);
@@ -62,7 +76,9 @@ int	start_simulation(t_data *data)
 	i = 0;
 	while (i < data->philo_count)
 	{
+		pthread_mutex_lock(&data->philos[i].meal_mutex);
 		data->philos[i].last_meal = get_time();
+		pthread_mutex_unlock(&data->philos[i].meal_mutex);
 		if (pthread_create(&data->philos[i].thread, NULL,
 				philo_routine, &data->philos[i]) != 0)
 			return (1);
