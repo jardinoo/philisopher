@@ -262,6 +262,3 @@ This project teaches:
 
 This project is part of the 42 School curriculum. Feel free to study and learn from it, but please adhere to your school's policies on academic integrity.
 
----
-
-**Made with ☕ and threads**
